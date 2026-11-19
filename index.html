@@ -318,10 +318,6 @@ html.rm .reveal>p,html.rm .reveal>h2{opacity:1;transform:none}html.rm .foot-inne
 @media(prefers-reduced-motion:reduce){.winter-snow,.tree-sparkles{display:none}.foot.pending .foot-inner{opacity:1;transform:none}}
 
 /* Three scenes share the same fade choreography. */
-:root,:root[data-theme="dark"]{--w:100%;--deep:#fbf3e8;background:#fbf3e8}
-body{background:#fbf3e8}.page{width:100%;max-width:none;margin:0;box-shadow:none;border:0}
-.scene{background:#fbf3e8}.scene .cover-art{width:100%;max-width:960px;margin:0 auto;max-height:55svh;object-fit:contain}
-.cover-summary{border:0;background:#fbf3e8}
 .event-scene{width:100%;max-width:580px;margin:0 auto;padding:32px 20px 24px;background:#fbf3e8}
 html.motion .event-scene{position:absolute;inset:0;max-width:none;margin:0;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:var(--event-opacity,0);transform:translateY(var(--event-shift,38px));pointer-events:auto;will-change:opacity,transform}
 html.motion .event-scene>.panel{width:100%;max-width:540px}html.motion .event-scene>.rule{width:100%;max-width:540px}
@@ -332,14 +328,6 @@ html.flow-motion .event-scene{opacity:var(--flow-event-opacity,1);transform:tran
 html.rm .event-scene{position:relative;inset:auto;opacity:1;transform:none}
 @media(max-width:380px){.event-scene{padding-left:12px;padding-right:12px}}
 
-
-/* Continue the artwork's cream stripes across the entire invitation. */
-:root{--stripe-width:clamp(10px,2.5vw,24px);--party-paper:repeating-linear-gradient(90deg,#f6e7d7 0 var(--stripe-width),#fcf2e6 var(--stripe-width) calc(var(--stripe-width)*2))}
-html,html[data-theme="dark"],body,.page,.scene,.cover-summary,.event-scene,
-html.motion .hero-sticky,html.motion .reveal,.reveal,html.rm .reveal{
-  background-color:#fcf2e6;background-image:var(--party-paper);background-position:center top;background-attachment:fixed;background-size:auto;
-}
-.cover-summary{border:0}.page{box-shadow:none;border:0}
 
 </style>
 </head>
