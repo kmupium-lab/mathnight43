@@ -295,21 +295,46 @@ body{background:#eee1d2;color:#553b2a;font-size:16px}.page{width:var(--w);backgr
 .car{align-items:center;background:#fbf3e8}.car img{aspect-ratio:auto;object-fit:contain;height:auto}.modal-card{max-width:520px}.modal-actions p{color:#fff6e7;font-size:14px}.dots button::after{background:#b7a48e}.dots button[aria-current="true"]::after{background:#fff4df}.x{background:#3f634a;color:#fffaf2}.toast{background:#3f634a;color:#fffaf2;font-size:14px;max-width:calc(100vw - 24px);white-space:normal;text-align:center}
 @media(max-width:380px){.below{padding:0 12px}.panel{padding:20px 12px}.reveal,html.rm .reveal{padding-left:10px;padding-right:10px}.msg p{font-size:16px}.msg .hl{font-size:17px}.tl time,.tl span:last-child{font-size:14px}.cover-summary .cover-time{font-size:19px}.duo{gap:8px}.card{padding-left:8px;padding-right:8px}}
 
+
+/* Scroll choreography: the artwork lifts away as the invitation appears. */
+.cover-front{position:relative}.tree-sparkles{position:absolute;inset:0;pointer-events:none}.tree-sparkles i{position:absolute;left:var(--x);top:var(--y);width:5px;height:5px;border-radius:50%;background:#fff6bf;box-shadow:0 0 10px 4px #ffd98c80;animation:christmasGlow 3.2s ease-in-out infinite;animation-delay:var(--delay)}
+@keyframes christmasGlow{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:.9;transform:scale(1.15)}}
+.winter-snow{position:absolute;inset:0;overflow:hidden;pointer-events:none}.winter-snow i{position:absolute;left:var(--x);top:-12px;width:var(--size);height:var(--size);border-radius:50%;background:#fff;box-shadow:0 0 3px #cba36c66;animation:christmasSnow var(--duration) linear infinite;animation-delay:var(--delay)}
+@keyframes christmasSnow{0%{transform:translate3d(0,-10px,0);opacity:0}15%{opacity:.8}85%{opacity:.7}100%{transform:translate3d(30px,var(--snow-travel,700px),0);opacity:0}}
+html.motion .hero{height:calc(var(--stage-height) + var(--scroll-distance));position:relative}
+html.motion .hero-sticky{position:sticky;top:0;height:var(--stage-height);overflow:hidden;background:#fbf3e8}
+html.motion .cover-front{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;opacity:var(--cover-opacity,1);transform:translate3d(0,var(--cover-shift,0px),0) scale(var(--cover-scale,1));transform-origin:center 30%;will-change:transform,opacity}
+html.motion .scene{flex:none}html.motion .cover-summary{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
+html.motion .reveal{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:var(--message-opacity,0);transform:translate3d(0,var(--message-shift,38px),0);background:#fbf3e8;pointer-events:none;will-change:transform,opacity}
+html.motion .reveal p{flex:none}html.motion .reveal h2{flex:none}
+html.motion .reveal>p,html.motion .reveal>h2{opacity:var(--line-opacity,0);transform:translateY(var(--line-shift,12px))}
+html.motion .cover-front[inert]{pointer-events:none}
+html.motion .foot-inner{transition:opacity 1s ease,transform 1s ease}.foot.pending .foot-inner{opacity:0;transform:translateY(22px)}
+html.flow-motion .cover-art{transform:translate3d(0,var(--flow-shift,0px),0) scale(var(--flow-scale,1));transform-origin:center;will-change:transform}
+html.flow-motion .reveal{opacity:var(--flow-opacity,1);transform:translateY(var(--flow-reveal-shift,0px));will-change:transform,opacity}
+html.rm .cover-front{position:relative;opacity:1;transform:none}html.rm .tree-sparkles,html.rm .winter-snow{display:none}
+html.rm .reveal>p,html.rm .reveal>h2{opacity:1;transform:none}html.rm .foot-inner{opacity:1!important;transform:none!important}
+
+@media(prefers-reduced-motion:reduce){.winter-snow,.tree-sparkles{display:none}.foot.pending .foot-inner{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <main class="page">
   <section class="hero" aria-label="초대장 표지">
     <div class="hero-sticky" id="stage">
+      <div class="cover-front">
       <div class="scene">
         <h1 class="sr-only">크리스마스 솔로파티</h1>
         <img class="cover-art" src="og.jpg?v=35d040ff3a45" width="1200" height="630" fetchpriority="high" alt="크리스마스트리와 선물 상자가 그려진 솔로파티 초대장. 12월 20일 토요일 오후 7시, 무드니크 파티룸, 회비 45,000원.">
+        <div class="tree-sparkles" aria-hidden="true"><i style="--x:72%;--y:21%;--delay:0.0s"></i><i style="--x:77%;--y:30%;--delay:-0.8s"></i><i style="--x:66%;--y:39%;--delay:-1.6s"></i><i style="--x:74%;--y:45%;--delay:-2.4000000000000004s"></i><i style="--x:81%;--y:52%;--delay:-3.2s"></i><i style="--x:70%;--y:58%;--delay:-4.0s"></i><i style="--x:62%;--y:64%;--delay:-4.800000000000001s"></i><i style="--x:79%;--y:65%;--delay:-5.6000000000000005s"></i></div>
       </div>
+      <div class="winter-snow" aria-hidden="true"><i style="--x:0%;--delay:-0.0s;--duration:7s;--size:2px"></i><i style="--x:13%;--delay:-1.7s;--duration:8s;--size:3px"></i><i style="--x:26%;--delay:-3.4s;--duration:9s;--size:4px"></i><i style="--x:39%;--delay:-5.1s;--duration:10s;--size:2px"></i><i style="--x:52%;--delay:-6.8s;--duration:11s;--size:3px"></i><i style="--x:65%;--delay:-8.5s;--duration:7s;--size:4px"></i><i style="--x:78%;--delay:-10.2s;--duration:8s;--size:2px"></i><i style="--x:91%;--delay:-11.9s;--duration:9s;--size:3px"></i><i style="--x:4%;--delay:-13.6s;--duration:10s;--size:4px"></i><i style="--x:17%;--delay:-15.299999999999999s;--duration:11s;--size:2px"></i><i style="--x:30%;--delay:-17.0s;--duration:7s;--size:3px"></i><i style="--x:43%;--delay:-18.7s;--duration:8s;--size:4px"></i></div>
       <div class="cover-summary">
         <p>혼자 온 우리, 함께 빛나는 밤</p>
         <p class="cover-time">12월 20일 토요일 · 오후 7시</p>
         <p class="cover-place">무드니크 파티룸 · 45,000원<br><small>17:00 입장 · 주류 및 안주 포함</small></p>
         <a class="btn" href="#info-t">행사 안내 보기</a>
+      </div>
       </div>
       <div class="reveal msg">
         <h2 class="hl"><span>솔로파티 — 이번 크리스마스는 단체전</span></h2>
@@ -465,11 +490,65 @@ function toast(msg,link){
   t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),link?6000:2200);
 }
 
-/* Respect motion preferences for the timeline and poster viewer. */
+/* Accessible scroll animation, with a flowing layout on short screens. */
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
-function applyMotion(){document.documentElement.classList.toggle('rm',reduce.matches);}
-reduce.addEventListener?reduce.addEventListener('change',applyMotion):reduce.addListener(applyMotion);
-applyMotion();
+const hero=$('.hero'),stage=$('#stage'),cover=$('.cover-front'),message=$('.reveal'),foot=$('#foot');
+const lines=[...message.children];
+let framePending=false,layoutPending=false,pinned=false;
+function setInert(element,on){if(on)element.setAttribute('inert','');else element.removeAttribute('inert');}
+function updateMotion(){
+  framePending=false;
+  if(reduce.matches)return;
+  const rect=hero.getBoundingClientRect();
+  if(pinned){
+    const distance=Math.max(1,hero.offsetHeight-stage.offsetHeight);
+    const progress=clamp(-rect.top/distance);
+    const coverFade=1-sm(progress,.04,.43),messageFade=sm(progress,.12,.36);
+    stage.style.setProperty('--cover-opacity',coverFade.toFixed(4));
+    stage.style.setProperty('--cover-shift',(-70*sm(progress,0,.6)).toFixed(2)+'px');
+    stage.style.setProperty('--cover-scale',(1+.045*sm(progress,0,.6)).toFixed(4));
+    stage.style.setProperty('--message-opacity',messageFade.toFixed(4));
+    stage.style.setProperty('--message-shift',(38*(1-messageFade)).toFixed(2)+'px');
+    lines.forEach((line,i)=>{const amount=sm(progress,.14+i*.035,.34+i*.035);line.style.setProperty('--line-opacity',amount.toFixed(4));line.style.setProperty('--line-shift',(18*(1-amount)).toFixed(2)+'px');});
+    setInert(cover,coverFade<.05);setInert(message,messageFade<.05);
+  }else{
+    const progress=clamp(-rect.top/Math.max(1,cover.offsetHeight));
+    cover.style.setProperty('--flow-shift',(-18*progress).toFixed(2)+'px');
+    cover.style.setProperty('--flow-scale',(1+.035*progress).toFixed(4));
+    const amount=sm((innerHeight-message.getBoundingClientRect().top)/innerHeight,0,.45);
+    message.style.setProperty('--flow-opacity',(.25+.75*amount).toFixed(4));
+    message.style.setProperty('--flow-reveal-shift',(20*(1-amount)).toFixed(2)+'px');
+    setInert(cover,false);setInert(message,false);
+  }
+}
+function requestFrame(){if(!framePending){framePending=true;requestAnimationFrame(updateMotion);}}
+function measureMotion(){
+  layoutPending=false;
+  const html=document.documentElement;
+  html.classList.remove('motion','flow-motion');
+  html.classList.toggle('rm',reduce.matches);
+  setInert(cover,false);setInert(message,false);
+  if(reduce.matches){pinned=false;return;}
+  // Measure the normal document before deciding whether both scenes fit.
+  const needed=Math.max(cover.offsetHeight,message.offsetHeight);
+  pinned=needed+16<=innerHeight;
+  hero.style.setProperty('--stage-height',innerHeight+'px');
+  hero.style.setProperty('--scroll-distance',Math.round(innerHeight*1.7)+'px');
+  cover.style.setProperty('--snow-travel',Math.max(innerHeight,cover.offsetHeight)+'px');
+  html.classList.add(pinned?'motion':'flow-motion');
+  updateMotion();
+}
+function requestLayout(){if(!layoutPending){layoutPending=true;requestAnimationFrame(measureMotion);}}
+window.addEventListener('scroll',requestFrame,{passive:true});
+window.addEventListener('resize',requestLayout,{passive:true});
+reduce.addEventListener?reduce.addEventListener('change',measureMotion):reduce.addListener(measureMotion);
+$('.cover-art').addEventListener('load',requestLayout);
+document.fonts.ready.then(measureMotion);
+measureMotion();
+if('IntersectionObserver' in window){
+  foot.classList.add('pending');
+  new IntersectionObserver(entries=>{for(const entry of entries){foot.classList.toggle('pending',!entry.isIntersecting);}}, {threshold:.15}).observe(foot);
+}
 
 /* timeline */
 const tl=$('#tl'), tlDots=[...tl.querySelectorAll('.dot')];
