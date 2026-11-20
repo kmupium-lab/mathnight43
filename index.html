@@ -106,7 +106,7 @@ address{font-style:normal;text-align:center;line-height:1.8;margin:0 0 14px}addr
 /* As in the forked invitation: one sticky stage, progress from document scroll. */
 html.animated .hero{height:calc(var(--stage-height) + var(--scroll-distance))}
 html.animated .stage{position:sticky;top:0;height:var(--stage-height);overflow:hidden;isolation:isolate}
-html.animated .screen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;opacity:var(--opacity,0);pointer-events:none;will-change:opacity}
+html.animated .screen{position:absolute;inset:0 0 auto;min-height:var(--stage-height);display:flex;flex-direction:column;justify-content:center;opacity:var(--opacity,0);transform:translate3d(0,var(--scene-offset,0px),0);pointer-events:none;will-change:opacity,transform}
 html.animated .screen.is-active{pointer-events:auto}
 html.animated .cover-screen{padding:env(safe-area-inset-top,0px) 0 max(24px,env(safe-area-inset-bottom,0px));justify-content:flex-start}
 html.animated .cover-screen .cover-summary{flex:none;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding-top:var(--cover-gap,calc(28px / 3))}
@@ -269,14 +269,15 @@ const EVENT={
   details:'12월 19일 토요일 · 19:00 입장 및 안내 · 19:10 1부 · 21:00 2부 · 23:00 3부 · 참가비 50,000원 (주류 및 안주 포함)'
 };
 document.querySelectorAll('[data-img]').forEach(el=>{el.src=IMG[el.dataset.img];});
-/* Original invitation model: stable sticky stage + requestAnimationFrame.
-   Mobile browser chrome can resize height while scrolling. Never rebuild the
-   document for a height-only resize: it collapses the sticky scroll range. */
+/* A stable sticky stage, with document scroll reserved for reading each scene.
+   Tall content adds reading distance instead of disabling all transitions.
+   Height-only address-bar resizes never rebuild the scroll range. */
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const hero=$('.hero'),stage=$('#stage');
 const screens=[...stage.querySelectorAll('.screen')];
 const timeline=$('#tl');
 let pinned=false,stageHeight=0,scrollDistance=0,layoutWidth=0,framePending=false,ready=false;
+let overflows=[0,0,0],readStarts=[0,0,0],firstFade=[0,1],secondFade=[0,1];
 
 function setTimeline(visible){
   if(!visible)return;
@@ -291,11 +292,12 @@ function render(){
     setTimeline(r.top<innerHeight*.85&&r.bottom>0);
     return;
   }
-  const p=clamp(-hero.getBoundingClientRect().top/scrollDistance);
-  const first=sm(p,.06,.30),second=sm(p,.62,.86);
+  const distance=clamp(-hero.getBoundingClientRect().top,0,scrollDistance);
+  const first=sm(distance,...firstFade),second=sm(distance,...secondFade);
   const opacity=[1-first,first*(1-second),second];
   screens.forEach((screen,i)=>{
     screen.style.setProperty('--opacity',opacity[i].toFixed(4));
+    screen.style.setProperty('--scene-offset',-clamp(distance-readStarts[i],0,overflows[i])+'px');
     const active=opacity[i]>.5;
     screen.classList.toggle('is-active',active);
     if(active)screen.removeAttribute('inert');else screen.setAttribute('inert','');
@@ -311,19 +313,21 @@ function stableViewportHeight(){
   probe.remove();return height;
 }
 function configure(){
-  // Called once at startup, on an actual width/orientation change or a11y change.
-  // Kept out of the address-bar resize and scroll handlers.
-  const oldProgress=pinned?clamp(-hero.getBoundingClientRect().top/scrollDistance):0;
-  const wasPinned=pinned;
+  // Preserve the current reading segment or fade, rather than the fraction of
+  // the entire document: rotation can change individual scenes' overflow.
+  let anchor=null;
+  const oldDistance=-hero.getBoundingClientRect().top;
+  if(pinned&&oldDistance>0&&oldDistance<scrollDistance){
+    const points=[0,...firstFade,...secondFade,scrollDistance];
+    const segment=points.findIndex((point,i)=>i<points.length-1&&oldDistance>=point&&oldDistance<points[i+1]);
+    if(segment>=0)anchor={segment,fraction:(oldDistance-points[segment])/(points[segment+1]-points[segment])};
+  }
   document.documentElement.classList.remove('animated');
-  screens.forEach(screen=>{screen.removeAttribute('inert');screen.classList.remove('is-active');screen.style.removeProperty('--opacity');});
+  screens.forEach(screen=>{screen.removeAttribute('inert');screen.classList.remove('is-active');screen.style.removeProperty('--opacity');screen.style.removeProperty('--scene-offset');});
   layoutWidth=document.documentElement.clientWidth;
   stageHeight=stableViewportHeight();
-  const tallest=Math.max(...screens.map(screen=>screen.offsetHeight));
-  pinned=!reduce.matches&&tallest+8<=stageHeight;
+  pinned=!reduce.matches;
   if(pinned){
-    // Preserve one third of the original cover-to-tagline spacing, including
-    // the extra space formerly introduced by flex centering the summary.
     const summary=$('.cover-summary');
     const originalSummaryHeight=summary.getBoundingClientRect().height+28-28/3;
     const artHeight=$('.art-frame').getBoundingClientRect().height;
@@ -332,14 +336,20 @@ function configure(){
     const bottomInset=Math.max(24,safeBottom);
     const originalGap=28+Math.max(0,stageHeight-topInset-bottomInset-artHeight-originalSummaryHeight)/2;
     hero.style.setProperty('--cover-gap',(originalGap/3)+'px');
-    scrollDistance=Math.round(stageHeight*3.2);
     hero.style.setProperty('--stage-height',stageHeight+'px');
-    hero.style.setProperty('--scroll-distance',scrollDistance+'px');
     document.documentElement.classList.add('animated');
-    // Retain reading position after rotation instead of returning to the cover.
-    if(wasPinned&&oldProgress>0&&oldProgress<1){
+    overflows=screens.map(screen=>Math.max(0,Math.ceil(screen.getBoundingClientRect().height)-stageHeight));
+    readStarts[0]=stageHeight*.2;
+    firstFade=[readStarts[0]+overflows[0],readStarts[0]+overflows[0]+stageHeight*.75];
+    readStarts[1]=firstFade[1]+stageHeight*.2;
+    secondFade=[firstFade[1]+stageHeight+overflows[1],firstFade[1]+stageHeight*1.75+overflows[1]];
+    readStarts[2]=secondFade[1]+stageHeight*.2;
+    scrollDistance=Math.ceil(secondFade[1]+stageHeight*.5+overflows[2]);
+    hero.style.setProperty('--scroll-distance',scrollDistance+'px');
+    if(anchor){
+      const points=[0,...firstFade,...secondFade,scrollDistance];
       const top=scrollY+hero.getBoundingClientRect().top;
-      scrollTo(0,top+oldProgress*scrollDistance);
+      scrollTo(0,top+points[anchor.segment]+anchor.fraction*(points[anchor.segment+1]-points[anchor.segment]));
     }
   }
   render();
@@ -354,13 +364,14 @@ $('#showEvent').addEventListener('click',e=>{
   if(!pinned)return;
   e.preventDefault();
   const top=scrollY+hero.getBoundingClientRect().top;
-  scrollTo({top:top+scrollDistance*.92,behavior:'smooth'});
+  scrollTo({top:top+secondFade[1],behavior:'smooth'});
 });
-// Inline font and explicit image dimensions reserve geometry before first scroll.
-// If the user has already started reading before fonts finish, preserve normal flow.
+// Isolate the cover immediately, including when scrolling before fonts finish.
+// Re-measure once the inline font is ready, preserving transition progress.
+ready=true;
+configure();
 document.fonts.ready.then(()=>{
-  ready=true;
-  if(scrollY<8)configure();else{layoutWidth=document.documentElement.clientWidth;render();}
+  configure();
   document.documentElement.dataset.ready='true';
 });
 
